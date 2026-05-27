@@ -4,7 +4,8 @@ import { createMcpServer } from './server/mcp.js';
 import { runWithUser } from './context.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
-const PORT = parseInt(process.env.PORT ?? '3000', 10);
+const PORT = parseInt(process.env.PORT ?? '54786', 10);
+const HOST = '0.0.0.0';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -106,11 +107,11 @@ async function main() {
     // Migrations may already be applied; not fatal
   }
 
-  httpServer.listen(PORT, () => {
-    console.log(`\nBookmark MCP Server running on http://localhost:${PORT}`);
-    console.log(`  Auth:   http://localhost:${PORT}/api/auth/sign-in/social?provider=github`);
-    console.log(`  MCP:    http://localhost:${PORT}/mcp`);
-    console.log(`  Health: http://localhost:${PORT}/health\n`);
+  httpServer.listen(PORT, HOST, () => {
+    console.log(`\nBookmark MCP Server running on http://${HOST}:${PORT}`);
+    console.log(`  Auth:   http://${HOST}:${PORT}/api/auth/sign-in/social?provider=github`);
+    console.log(`  MCP:    http://${HOST}:${PORT}/mcp`);
+    console.log(`  Health: http://${HOST}:${PORT}/health\n`);
   });
 }
 
