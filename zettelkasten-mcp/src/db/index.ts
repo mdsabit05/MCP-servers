@@ -38,21 +38,17 @@ sqlite.exec(`
     note_id UNINDEXED,
     user_id UNINDEXED,
     title,
-    content,
-    content='notes',
-    content_rowid='rowid'
+    content
   );
   CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes BEGIN
     INSERT INTO notes_fts(note_id, user_id, title, content)
     VALUES (new.id, new.user_id, new.title, new.content);
   END;
   CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON notes BEGIN
-    INSERT INTO notes_fts(notes_fts, note_id, user_id, title, content)
-    VALUES ('delete', old.id, old.user_id, old.title, old.content);
+    DELETE FROM notes_fts WHERE note_id = old.id;
   END;
   CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON notes BEGIN
-    INSERT INTO notes_fts(notes_fts, note_id, user_id, title, content)
-    VALUES ('delete', old.id, old.user_id, old.title, old.content);
+    DELETE FROM notes_fts WHERE note_id = old.id;
     INSERT INTO notes_fts(note_id, user_id, title, content)
     VALUES (new.id, new.user_id, new.title, new.content);
   END;

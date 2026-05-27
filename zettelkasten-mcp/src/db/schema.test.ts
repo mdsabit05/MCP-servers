@@ -40,9 +40,7 @@ beforeEach(() => {
       note_id UNINDEXED,
       user_id UNINDEXED,
       title,
-      content,
-      content='notes',
-      content_rowid='rowid'
+      content
     );
   `);
 });
