@@ -17,7 +17,7 @@
    |---|---|
    | Application name | `Bookmark MCP Server (local)` |
    | Homepage URL | `http://localhost:3000` |
-   | Authorization callback URL | `http://localhost:3000/api/auth/callback/github` |
+   | Authorization callback URL | `https://mcpproject2-be-tn.groo.bot/api/auth/callback/github` |
 3. Click **Register application**
 4. On the next screen, click **Generate a new client secret**
 5. Copy the **Client ID** and **Client Secret** — you'll need them in the next step
@@ -38,7 +38,8 @@ GITHUB_CLIENT_ID=<your client id>
 GITHUB_CLIENT_SECRET=<your client secret>
 BETTER_AUTH_SECRET=<run: openssl rand -hex 32>
 ANTHROPIC_API_KEY=<your anthropic key>
-PORT=3000
+PORT=54786
+BASE_URL=https://mcpproject2-be-tn.groo.bot
 ```
 
 Generate a strong secret:
@@ -71,7 +72,7 @@ Bookmark MCP Server running on http://localhost:3000
 1. **Open this URL in your browser:**
 
    ```
-   http://localhost:3000/api/auth/sign-in/social?provider=github
+   https://mcpproject2-be-tn.groo.bot/api/auth/sign-in/social?provider=github
    ```
 
 2. Authorize the GitHub OAuth app when prompted.
@@ -102,7 +103,7 @@ Edit `~/.claude.json` or add an MCP server entry via `claude mcp add`:
 ```bash
 claude mcp add bookmark-server \
   --transport http \
-  --url http://localhost:3000/mcp \
+  --url https://mcpproject2-be-tn.groo.bot/mcp \
   --header "Authorization: Bearer YOUR_SESSION_TOKEN"
 ```
 
@@ -113,7 +114,7 @@ Or add it manually to `~/.claude.json`:
   "mcpServers": {
     "bookmark-server": {
       "type": "http",
-      "url": "http://localhost:3000/mcp",
+      "url": "https://mcpproject2-be-tn.groo.bot/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_SESSION_TOKEN_HERE"
       }
@@ -129,7 +130,7 @@ Or add it manually to `~/.claude.json`:
   "mcpServers": {
     "bookmark-server": {
       "type": "http",
-      "url": "http://localhost:3000/mcp",
+      "url": "https://mcpproject2-be-tn.groo.bot/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_SESSION_TOKEN_HERE"
       }

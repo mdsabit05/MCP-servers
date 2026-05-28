@@ -5,7 +5,7 @@ import { db } from './db/index.js';
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET ?? 'dev-secret-change-me',
-  baseURL: `http://localhost:${process.env.PORT ?? 54786}`,
+  baseURL: process.env.BASE_URL ?? `http://localhost:${process.env.PORT ?? 54786}`,
   database: drizzleAdapter(db, { provider: 'sqlite' }),
   socialProviders: {
     github: {
