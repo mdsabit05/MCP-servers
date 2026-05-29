@@ -80,4 +80,48 @@ export const budgets = sqliteTable('budgets', {
   updatedAt: integer('updated_at').notNull(),
 })
 
-export const schema = { user, session, account, verification, accounts, transactions, budgets }
+// ── MCP / OIDC plugin tables ───────────────────────────────────────────────────
+
+export const oauthApplication = sqliteTable('oauth_application', {
+  id: text('id').primaryKey(),
+  clientId: text('client_id').unique(),
+  clientSecret: text('client_secret'),
+  name: text('name').notNull(),
+  icon: text('icon'),
+  metadata: text('metadata'),
+  redirectUrls: text('redirect_urls').notNull(),
+  type: text('type').notNull(),
+  disabled: integer('disabled', { mode: 'boolean' }),
+  userId: text('user_id'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})
+
+export const oauthAccessToken = sqliteTable('oauth_access_token', {
+  id: text('id').primaryKey(),
+  accessToken: text('access_token').unique(),
+  refreshToken: text('refresh_token').unique(),
+  accessTokenExpiresAt: integer('access_token_expires_at', { mode: 'timestamp' }),
+  refreshTokenExpiresAt: integer('refresh_token_expires_at', { mode: 'timestamp' }),
+  clientId: text('client_id'),
+  userId: text('user_id'),
+  scopes: text('scopes'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})
+
+export const oauthConsent = sqliteTable('oauth_consent', {
+  id: text('id').primaryKey(),
+  clientId: text('client_id'),
+  userId: text('user_id'),
+  scopes: text('scopes'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  consentGiven: integer('consent_given', { mode: 'boolean' }),
+})
+
+export const schema = {
+  user, session, account, verification,
+  accounts, transactions, budgets,
+  oauthApplication, oauthAccessToken, oauthConsent,
+}

@@ -2,7 +2,7 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { schema } from './schema.js'
 
-export { accounts, transactions, budgets, user, session, account, verification } from './schema.js'
+export { accounts, transactions, budgets, user, session, account, verification, oauthApplication, oauthAccessToken, oauthConsent } from './schema.js'
 
 const sqliteInstance = new Database(process.env.DATABASE_URL ?? 'finance.db')
 
@@ -79,6 +79,41 @@ export function initSchema(): void {
       monthly_limit INTEGER NOT NULL,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS oauth_application (
+      id TEXT PRIMARY KEY,
+      client_id TEXT UNIQUE,
+      client_secret TEXT,
+      name TEXT NOT NULL,
+      icon TEXT,
+      metadata TEXT,
+      redirect_urls TEXT NOT NULL,
+      type TEXT NOT NULL,
+      disabled INTEGER,
+      user_id TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS oauth_access_token (
+      id TEXT PRIMARY KEY,
+      access_token TEXT UNIQUE,
+      refresh_token TEXT UNIQUE,
+      access_token_expires_at INTEGER,
+      refresh_token_expires_at INTEGER,
+      client_id TEXT,
+      user_id TEXT,
+      scopes TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS oauth_consent (
+      id TEXT PRIMARY KEY,
+      client_id TEXT,
+      user_id TEXT,
+      scopes TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      consent_given INTEGER
     );
   `)
 }
