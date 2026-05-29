@@ -1,30 +1,5 @@
 {
-  "name": "finance-mcp",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "node --env-file=.env --import tsx/esm --watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@cfworker/json-schema": "^4.1.1",
-    "@hono/node-server": "latest",
-    "@modelcontextprotocol/hono": "latest",
-    "@modelcontextprotocol/server": "latest",
-    "better-auth": "latest",
-    "better-sqlite3": "latest",
-    "drizzle-orm": "latest",
-    "hono": "latest",
-    "zod": "latest"
-  },
   "devDependencies": {
-    "@types/better-sqlite3": "latest",
-    "@types/node": "latest",
-    "tsx": "latest",
-    "typescript": "latest",
-    "vitest": "latest"
+    "typescript": "^6.0.3"
   }
 }

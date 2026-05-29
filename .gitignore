@@ -1,5 +1,31 @@
+# Dependencies
 node_modules/
-dist/
-finance.db
+
+# Environment variables (NEVER commit these — contain secrets)
 .env
+.env.local
+.env.*.local
+
+# Database files
 *.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Build output
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+docs/
