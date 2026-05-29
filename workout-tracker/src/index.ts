@@ -10,13 +10,25 @@ import { createMcpServer } from "./mcp.ts";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
-// CORS — allow MCP clients from any origin
-app.use("*", cors({ origin: "*", allowHeaders: ["Authorization", "Content-Type"] }));
+// CORS — allow MCP clients and the frontend
+const allowedOrigins = [
+  "https://mcpproject4-fe-tn.groo.bot",
+  process.env.FRONTEND_ORIGIN ?? "",
+].filter(Boolean);
+
+app.use(
+  "*",
+  cors({
+    origin: (origin) => (origin && allowedOrigins.includes(origin) ? origin : "*"),
+    allowHeaders: ["Authorization", "Content-Type"],
+    credentials: true,
+  })
+);
 
 // ── OAuth discovery metadata ────────────────────────────────────────────────
 // MCP clients look here to discover auth endpoints
 app.get("/.well-known/oauth-authorization-server", (c) => {
-  const base = process.env.BASE_URL ?? "https://tarn.groo.bot/p/mcpproject4/proxy/47832";
+  const base = process.env.BASE_URL ?? "https://mcpproject4-be-tn.groo.bot";
   return c.json({
     issuer: base,
     authorization_endpoint: `${base}/api/auth/sign-in/github`,
@@ -29,7 +41,7 @@ app.get("/.well-known/oauth-authorization-server", (c) => {
 });
 
 // ── better-auth routes (/api/auth/*) ────────────────────────────────────────
-app.on(["GET", "POST"], "/api/auth/**", (c) => {
+app.on(["GET", "POST"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
 
