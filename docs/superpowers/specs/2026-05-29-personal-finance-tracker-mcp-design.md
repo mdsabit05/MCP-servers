@@ -10,9 +10,9 @@ A Model Context Protocol (MCP) server that lets users log transactions, manage a
 
 ## Architecture
 
-### Approach: Single Express App, Two Route Groups
+### Approach: Single Hono App, Two Route Groups
 
-One Node.js/TypeScript process runs a single Express HTTP server on port 3000:
+One Node.js/TypeScript process runs a single Hono HTTP server on port 3000:
 
 - `/auth/*` — handled by better-auth (OAuth sign-in, callbacks, session management)
 - `/mcp` — handled by the MCP SDK's Streamable HTTP transport
@@ -24,7 +24,7 @@ Session validation middleware runs before every MCP request, extracting `userId`
 ```
 finance-mcp/
 ├── src/
-│   ├── index.ts            # Express app bootstrap, mounts auth + MCP routers
+│   ├── index.ts            # Hono app bootstrap, mounts auth + MCP routers
 │   ├── auth.ts             # better-auth instance (GitHub + Google providers)
 │   ├── db.ts               # Drizzle ORM + SQLite setup, schema definitions
 │   ├── middleware.ts        # Session validation middleware for /mcp routes
@@ -44,7 +44,7 @@ finance-mcp/
 ### Request Flow
 
 ```
-Browser                     Express App (port 3000)               SQLite
+Browser                     Hono App (port 3000)                  SQLite
   │                               │                                  │
   ├─ GET /auth/signin/github ─────►│                                  │
   │◄────── redirect to GitHub ────┤                                  │
@@ -233,9 +233,9 @@ Managed automatically by better-auth: `user`, `session`, `account`, `verificatio
 Applied to all routes under `/mcp`:
 
 ```typescript
-const session = await auth.api.getSession({ headers: req.headers })
-if (!session) return res.status(401).json({ error: 'Unauthorized' })
-req.userId = session.user.id  // injected into all tool handlers
+const session = await auth.api.getSession({ headers: c.req.raw.headers })
+if (!session) return c.json({ error: 'Unauthorized' }, 401)
+c.set('userId', session.user.id)  // injected into all tool handlers
 ```
 
 ### Environment Variables
@@ -272,7 +272,7 @@ DATABASE_URL=./finance.db
 | Runtime | Node.js 20+, TypeScript |
 | MCP transport | `@modelcontextprotocol/sdk` (Streamable HTTP) |
 | Auth | `better-auth` with GitHub + Google OAuth plugins |
-| HTTP server | Express 4 |
+| HTTP server | Hono |
 | ORM | Drizzle ORM |
 | SQLite driver | `better-sqlite3` |
 | Validation | Zod (tool input schemas) |
