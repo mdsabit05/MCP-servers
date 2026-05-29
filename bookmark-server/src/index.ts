@@ -37,15 +37,56 @@ const httpServer = http.createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', `http://localhost:${PORT}`);
     const rawBody = await readBody(req);
 
+    // ── Login page (browser entry point) ────────────────────────────────
+    if (url.pathname === '/login') {
+      const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
+      const html = `<!DOCTYPE html><html><head><title>Signing in...</title></head>
+<body><p>Redirecting to GitHub...</p>
+<script>
+fetch('/api/auth/sign-in/social', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({provider: 'github', callbackURL: '${baseURL}/auth-success'})
+}).then(r => r.json()).then(d => { if (d.url) window.location.href = d.url; else document.body.innerText = 'Error: ' + JSON.stringify(d); }).catch(e => { document.body.innerText = 'Error: ' + e; });
+</script></body></html>`;
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(html);
+      return;
+    }
+
+    // ── Auth success (post-OAuth landing page) ───────────────────────────
+    if (url.pathname === '/auth-success') {
+      const html = `<!DOCTYPE html><html><head><title>Signed in</title></head>
+<body><h2>Signed in!</h2><p>Getting your session token...</p>
+<pre id="out">Loading...</pre>
+<script>
+fetch('/api/auth/get-session', {credentials: 'include'})
+  .then(r => r.json())
+  .then(d => { document.getElementById('out').textContent = JSON.stringify(d, null, 2); })
+  .catch(e => { document.getElementById('out').textContent = 'Error: ' + e; });
+</script></body></html>`;
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(html);
+      return;
+    }
+
     // ── Auth routes (/api/auth/*) ────────────────────────────────────────
     if (url.pathname.startsWith('/api/auth')) {
       const webHeaders = nodeHeadersToWeb(req.headers);
       const webReq = new Request(`http://localhost:${PORT}${req.url}`, {
         method: req.method,
         headers: webHeaders,
-        body: rawBody.length > 0 ? rawBody.buffer as ArrayBuffer : undefined,
+        body: rawBody.length > 0 ? rawBody.buffer.slice(rawBody.byteOffset, rawBody.byteOffset + rawBody.byteLength) : undefined,
       });
       const webRes = await auth.handler(webReq);
+      if (webRes.status >= 400) {
+        const body = await webRes.clone().text();
+        const msg = `[auth] ${req.method} ${req.url} → ${webRes.status} ${body}`;
+        console.error(msg);
+        const fs = await import('fs');
+        fs.appendFileSync('/tmp/auth-errors.log', msg + '\n');
+      }
       await sendWebResponse(webRes, res);
       return;
     }

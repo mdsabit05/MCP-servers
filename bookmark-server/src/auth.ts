@@ -2,11 +2,12 @@ import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins/bearer';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from './db/index.js';
+import * as schema from './db/schema.js';
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET ?? 'dev-secret-change-me',
   baseURL: process.env.BASE_URL ?? `http://localhost:${process.env.PORT ?? 54786}`,
-  database: drizzleAdapter(db, { provider: 'sqlite' }),
+  database: drizzleAdapter(db, { provider: 'sqlite', schema }),
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID ?? '',
