@@ -14,14 +14,14 @@ export const auth = betterAuth({
     },
   }),
   secret: process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-me",
-  baseURL: process.env.BASE_URL ?? "http://localhost:47832",
+  baseURL: process.env.BASE_URL ?? "https://mcpproject4-be-tn.groo.bot",
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID ?? "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
     },
   },
-  trustedOrigins: [process.env.BASE_URL ?? "http://localhost:47832"],
+  trustedOrigins: [process.env.BASE_URL ?? "https://mcpproject4-be-tn.groo.bot"],
 });
 
 export type Session = typeof auth.$Infer.Session;

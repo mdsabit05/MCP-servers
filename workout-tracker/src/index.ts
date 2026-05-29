@@ -15,7 +15,7 @@ app.use("*", cors({ origin: "*", allowHeaders: ["Authorization", "Content-Type"]
 // ── OAuth discovery metadata ────────────────────────────────────────────────
 // MCP clients look here to discover auth endpoints
 app.get("/.well-known/oauth-authorization-server", (c) => {
-  const base = process.env.BASE_URL ?? "http://localhost:3000";
+  const base = process.env.BASE_URL ?? "https://mcpproject4-be-tn.groo.bot";
   return c.json({
     issuer: base,
     authorization_endpoint: `${base}/api/auth/sign-in/github`,
