@@ -76,9 +76,9 @@ app.post("/mcp/message", authGuard, async (c) => {
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get("/health", (c) => c.json({ status: "ok", tools: 14 }));
 
-const port = parseInt(process.env.PORT ?? "3000", 10);
-serve({ fetch: app.fetch, port }, () => {
-  console.log(`Workout Tracker MCP server running on http://localhost:${port}`);
-  console.log(`OAuth discovery: http://localhost:${port}/.well-known/oauth-authorization-server`);
-  console.log(`MCP SSE endpoint: http://localhost:${port}/mcp  (requires Bearer token)`);
+const port = parseInt(process.env.PORT ?? "47832", 10);
+serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, () => {
+  console.log(`Workout Tracker MCP server running on http://0.0.0.0:${port}`);
+  console.log(`OAuth discovery: http://0.0.0.0:${port}/.well-known/oauth-authorization-server`);
+  console.log(`MCP SSE endpoint: http://0.0.0.0:${port}/mcp  (requires Bearer token)`);
 });
