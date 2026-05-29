@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authorize Access — Recipe & Pantry Manager</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #faf9f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1a1a1a;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    .logo { font-size: 32px; margin-bottom: 8px; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .client-name { font-size: 16px; color: #6366f1; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+    .scopes {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .scopes h3 { font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .scope-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .scope-item:last-child { margin-bottom: 0; }
+    .scope-icon { font-size: 18px; flex-shrink: 0; }
+    .scope-text { font-size: 14px; color: #374151; line-height: 1.4; }
+    .scope-text small { display: block; color: #9ca3af; font-size: 12px; margin-top: 2px; }
+    .warning {
+      display: flex;
+      gap: 8px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.4;
+    }
+    .buttons { display: flex; gap: 10px; }
+    .btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-allow { background: #6366f1; color: #fff; }
+    .btn-allow:hover { background: #4f46e5; }
+    .btn-allow:disabled { background: #a5b4fc; cursor: not-allowed; }
+    .btn-deny { background: #f3f4f6; color: #374151; }
+    .btn-deny:hover { background: #e5e7eb; }
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .error.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🍳</div>
+    <h1>Authorize Access</h1>
+    <div class="client-name" id="client-name">An application</div>
+    <p class="subtitle">wants to access your Recipe & Pantry Manager</p>
+
+    <div class="warning">
+      <span>⚠️</span>
+      <span>Only grant access to applications you trust. This app will read and modify your recipes, pantry, and meal plans.</span>
+    </div>
+
+    <div class="scopes">
+      <h3>This app will be able to</h3>
+      <div class="scope-item">
+        <span class="scope-icon">👤</span>
+        <div class="scope-text">
+          Read your profile
+          <small>Name and email address</small>
+        </div>
+      </div>
+      <div class="scope-item">
+        <span class="scope-icon">🍽️</span>
+        <div class="scope-text">
+          Manage recipes
+          <small>View, create, and delete your recipes</small>
+        </div>
+      </div>
+      <div class="scope-item">
+        <span class="scope-icon">🥦</span>
+        <div class="scope-text">
+          Manage pantry inventory
+          <small>View and update what ingredients you have</small>
+        </div>
+      </div>
+      <div class="scope-item">
+        <span class="scope-icon">📅</span>
+        <div class="scope-text">
+          Manage meal plans
+          <small>View and schedule your meals</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="error" id="error-msg"></div>
+
+    <div class="buttons">
+      <button class="btn btn-deny" id="deny-btn">Deny</button>
+      <button class="btn btn-allow" id="allow-btn">Allow Access</button>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search)
+    const consentCode = params.get('consent_code')
+    const clientId = params.get('client_id')
+    const clientName = params.get('client_name') || clientId
+
+    if (clientName) {
+      document.getElementById('client-name').textContent = clientName
+    }
+
+    async function submitConsent(accept) {
+      const errEl = document.getElementById('error-msg')
+      errEl.classList.remove('visible')
+
+      const allowBtn = document.getElementById('allow-btn')
+      const denyBtn = document.getElementById('deny-btn')
+      allowBtn.disabled = true
+      denyBtn.disabled = true
+      allowBtn.textContent = accept ? 'Authorizing…' : 'Denying…'
+
+      try {
+        const res = await fetch('/api/auth/oauth2/consent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            accept,
+            consent_code: consentCode,
+          }),
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          throw new Error(data.message || data.error || `Consent failed (${res.status})`)
+        }
+
+        if (data.redirectURI) {
+          window.location.href = data.redirectURI
+        } else {
+          throw new Error('No redirect URI returned from server')
+        }
+      } catch (err) {
+        errEl.textContent = err.message
+        errEl.classList.add('visible')
+        allowBtn.disabled = false
+        denyBtn.disabled = false
+        allowBtn.textContent = 'Allow Access'
+        denyBtn.textContent = 'Deny'
+      }
+    }
+
+    document.getElementById('allow-btn').addEventListener('click', () => submitConsent(true))
+    document.getElementById('deny-btn').addEventListener('click', () => submitConsent(false))
+  </script>
+</body>
+</html>

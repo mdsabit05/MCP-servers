@@ -1,0 +1,29 @@
+{
+  "name": "recipe-pantry-manager",
+  "version": "1.0.0",
+  "description": "MCP server for recipe and pantry management with OAuth authentication",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "node --env-file=.env --import tsx/esm --watch src/index.ts",
+    "db:migrate": "npx @better-auth/cli migrate -y"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.40.0",
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "better-auth": "^1.2.7",
+    "better-sqlite3": "^12.0.0",
+    "drizzle-orm": "^0.45.2",
+    "express": "^4.21.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}
