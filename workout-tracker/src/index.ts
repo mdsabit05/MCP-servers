@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import type { HttpBindings } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { streamSSE } from "hono/streaming";
@@ -7,7 +8,7 @@ import { auth } from "./auth.ts";
 import { authGuard } from "./middleware/auth-guard.ts";
 import { createMcpServer } from "./mcp.ts";
 
-const app = new Hono();
+const app = new Hono<{ Bindings: HttpBindings }>();
 
 // CORS — allow MCP clients from any origin
 app.use("*", cors({ origin: "*", allowHeaders: ["Authorization", "Content-Type"] }));
@@ -69,7 +70,7 @@ app.post("/mcp/message", authGuard, async (c) => {
   if (!transport) {
     return c.json({ error: "No active SSE session for this ID" }, 404);
   }
-  await transport.handlePostMessage(c.req.raw);
+  await transport.handlePostMessage(c.env.incoming, c.env.outgoing);
   return c.json({ ok: true });
 });
 
