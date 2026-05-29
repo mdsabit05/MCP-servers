@@ -16,7 +16,7 @@ app.use("*", cors({ origin: "*", allowHeaders: ["Authorization", "Content-Type"]
 // ── OAuth discovery metadata ────────────────────────────────────────────────
 // MCP clients look here to discover auth endpoints
 app.get("/.well-known/oauth-authorization-server", (c) => {
-  const base = process.env.BASE_URL ?? "https://mcpproject4-be-tn.groo.bot";
+  const base = process.env.BASE_URL ?? "https://tarn.groo.bot/p/mcpproject4/proxy/47832";
   return c.json({
     issuer: base,
     authorization_endpoint: `${base}/api/auth/sign-in/github`,
@@ -78,8 +78,17 @@ app.post("/mcp/message", authGuard, async (c) => {
 app.get("/health", (c) => c.json({ status: "ok", tools: 14 }));
 
 const port = parseInt(process.env.PORT ?? "47832", 10);
-serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, () => {
+const server = serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, () => {
   console.log(`Workout Tracker MCP server running on http://0.0.0.0:${port}`);
   console.log(`OAuth discovery: http://0.0.0.0:${port}/.well-known/oauth-authorization-server`);
   console.log(`MCP SSE endpoint: http://0.0.0.0:${port}/mcp  (requires Bearer token)`);
+});
+
+server.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`\nPort ${port} is already in use. Kill the existing process first:\n  pkill -f "src/index.ts"\n`);
+  } else {
+    console.error("Server error:", err.message);
+  }
+  process.exit(1);
 });
