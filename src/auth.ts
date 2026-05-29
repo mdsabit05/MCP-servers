@@ -1,9 +1,13 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { db } from './db.js'
+import { user, session, account, verification } from './schema.js'
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: 'sqlite' }),
+  database: drizzleAdapter(db, {
+    provider: 'sqlite',
+    schema: { user, session, account, verification },
+  }),
   baseURL: process.env.BASE_URL ?? 'http://localhost:3000',
   basePath: '/api/auth',
   trustedOrigins: [process.env.BASE_URL ?? 'http://localhost:3000'],
